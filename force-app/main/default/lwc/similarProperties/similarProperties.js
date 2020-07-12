@@ -1,7 +1,7 @@
 import { LightningElement,api,track,wire } from 'lwc';
 import findProperties from '@salesforce/apex/SimilarPropertyController.findProperties';
 import { getRecord } from 'lightning/uiRecordApi';
-import { subscribe, createMessageContext, releaseMessageContext } from 'lightning/messageService';
+import {createMessageContext, MessageContext, publish, releaseMessageContext, subscribe, unsubscribe, APPLICATION_SCOPE } from 'lightning/messageService';
  import MESSAGE_CHANNEL from "@salesforce/messageChannel/Properties__c";
  import { refreshApex } from '@salesforce/apex';
 
@@ -48,7 +48,7 @@ export default class SimilarProperties extends LightningElement {
     }
     this.subscription = subscribe(this.context, MESSAGE_CHANNEL, (message) => {
         this.refreshSelection(message);
-    }); 
+    },{scope: APPLICATION_SCOPE} ); 
 }
 
 disconnectedCallback() {

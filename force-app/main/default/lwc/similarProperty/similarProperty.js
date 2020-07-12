@@ -1,10 +1,13 @@
 import { LightningElement,api,wire,track } from 'lwc';
-import {NavigationMixin, CurrentPageReference} from 'lightning/navigation'
-import {ShowToastEvent} from 'lightning/platformShowToastEvent'
+import {NavigationMixin, CurrentPageReference} from 'lightning/navigation';
+import {ShowToastEvent} from 'lightning/platformShowToastEvent';
+import { publish, createMessageContext, releaseMessageContext } from 'lightning/messageService';
+ import MESSAGE_CHANNEL from "@salesforce/messageChannel/Properties__c";
 export default class SimilarProperty extends NavigationMixin(LightningElement) {
     @api item;
     @wire(CurrentPageReference) pageRef;
     @track editMode = false;
+    context = createMessageContext();
 	
  navigateToRecord() {
      this[NavigationMixin.Navigate]({
@@ -27,6 +30,7 @@ export default class SimilarProperty extends NavigationMixin(LightningElement) {
     });
     this.dispatchEvent(evt);
     this.editMode = false;
+    publish(this.context, MESSAGE_CHANNEL,this);
 }
    
 handleError() {

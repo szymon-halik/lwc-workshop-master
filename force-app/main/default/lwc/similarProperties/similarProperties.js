@@ -1,5 +1,5 @@
 import { LightningElement,api,track,wire } from 'lwc';
-import findProperties from '@salesforce/apex/SimilarPropertyController.findProperties';
+import findProperties from '@salesforce/apex/SimilarPropertyController.getSimilarProperties';
 import { getRecord } from 'lightning/uiRecordApi';
 import {createMessageContext, MessageContext, publish, releaseMessageContext, subscribe, unsubscribe, APPLICATION_SCOPE } from 'lightning/messageService';
  import MESSAGE_CHANNEL from "@salesforce/messageChannel/Properties__c";
@@ -21,15 +21,19 @@ export default class SimilarProperties extends LightningElement {
  @track property;
  @track price;
  @track beds;
+ @api searchCriteria = 'Price';
+ @api priceRange = '100000';
+ @track cardTitle;
 
  context = createMessageContext();
  subscription = null;
 			
  @wire(findProperties, { 
      recordId: '$recordId',
-     priceRange: '100000',
+     priceRange: '$priceRange',
      price: '$price',
-     beds:'$beds'
+     beds: '$beds',
+     searchCriteria: '$searchCriteria'
  })
  props
  @wire(getRecord, {recordId: '$recordId', fields})
@@ -57,5 +61,20 @@ disconnectedCallback() {
     
 refreshSelection() {
     refreshApex(this.wiredRecords);
+}
+
+renderedCallback() {
+    this.cardTitle = 'Similar Properties by ' + this.searchCriteria;
+}
+get showRecords() {
+    if (this.props.data) {
+        if (this.props.data.length === 0) {
+            return false;
+        } else {
+            return true;
+        }
+    } else if (this.props.error) {
+        return 'Houston, we have a problem: ' + this.props.error;
+    }
 }
 }
